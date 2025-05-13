@@ -1,4 +1,4 @@
-import express, { Application, Request, Response } from 'express';
+import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import mongoose from 'mongoose';
@@ -8,7 +8,7 @@ import { setupSwagger } from './utils/swagger';
 // After app definition and middlewares
 
 import { connectDB } from './config/db';
-// import userRoutes from './api/routes/user.routes';
+import authRoutes from './api/routes/auth.routes';
 
 // import other routes 
 // import tutorRoutes from './api/routes/tutor.routes';
@@ -16,7 +16,7 @@ import { connectDB } from './config/db';
 
 dotenv.config(); // Load .env
 
-const app: Application = express();
+const app: Express = express();
 
 // Middleware
 app.use(cors({ origin: true, credentials: true }));
@@ -27,7 +27,7 @@ app.use(cookieParser());
 connectDB();
 
 // Routes
-// app.use('/api/users', userRoutes);
+app.use('/api/auth', authRoutes);
 // app.use('/api/tutors', tutorRoutes);
 // app.use('/api/bookings', bookingRoutes);
 
