@@ -3,6 +3,9 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
+import { setupSwagger } from './utils/swagger';
+
+// After app definition and middlewares
 
 import { connectDB } from './config/db';
 // import userRoutes from './api/routes/user.routes';
@@ -30,9 +33,10 @@ connectDB();
 
 // Health check
 app.get('/', (_req: Request, res: Response) => {
-  res.send('Virtual Support API is running...');
+    res.send('Virtual Support API is running...');
 });
 
+setupSwagger(app);
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
