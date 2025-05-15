@@ -1,3 +1,7 @@
+import { Router } from 'express';
+import {register, login} from '../controllers/auth.controller'
+
+const router = Router();
 /**
  * @swagger
  * /api/auth/register:
@@ -27,12 +31,34 @@
  *       400:
  *         description: Bad request
  */
-import { Router } from 'express';
-import {register, login} from '../controllers/auth.controller'
-
-const router = Router();
 
 router.post('/register', register);
+/**
+ * @swagger
+ * /api/auth/login:
+ *   post:
+ *     summary: user login
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: login successfull
+ *       401:
+ *         description: Not found
+ */
 router.post('/login', login);
 
 export default router;

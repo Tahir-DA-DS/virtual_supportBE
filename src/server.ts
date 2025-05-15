@@ -8,6 +8,7 @@ import { setupSwagger } from './utils/swagger';
 
 import { connectDB } from './config/db';
 import authRoutes from './api/routes/auth.routes';
+import tutorRoutes from './api/routes/tutor.routes';
 
 // import other routes 
 // import tutorRoutes from './api/routes/tutor.routes';
@@ -27,7 +28,7 @@ connectDB();
 
 // Routes
 app.use('/api/auth', authRoutes);
-// app.use('/api/tutors', tutorRoutes);
+app.use('/api/tutors', tutorRoutes);
 // app.use('/api/bookings', bookingRoutes);
 
 // Health check
