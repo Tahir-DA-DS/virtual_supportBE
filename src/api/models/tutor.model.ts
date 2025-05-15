@@ -10,14 +10,17 @@ export interface ITutor extends Document {
   profileImage?: string; 
 }
 
-const TutorSchema = new Schema<ITutor>({
-  userId: { type: String, required: true, unique: true },
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  bio: { type: String },
-  subjects: [{ type: String }],
-  availability: [{ type: String }],
-  profileImage: { type: String },
+const tutorSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+    unique: true
+  },
+  bio: String,
+  subjects: [String],
+  availability: [Date],
+  experience: Number
 }, { timestamps: true });
 
-export const Tutor = mongoose.model<ITutor>('Tutor', TutorSchema);
+export default mongoose.model('Tutor', tutorSchema);
