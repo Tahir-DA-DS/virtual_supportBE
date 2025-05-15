@@ -1,17 +1,17 @@
-import { Tutor } from '../models/tutor.model';
+import Tutor from '../models/tutor.model';
 
-export const createOrUpdateTutor = async (userId: string, data: any) => {
-  return await Tutor.findOneAndUpdate(
-    { userId },
-    { $set: data },
-    { new: true, upsert: true }
-  );
+const create = async (userId:string, profileData:{}) => {
+  const exists = await Tutor.findOne({ user: userId });
+  if (exists) throw new Error('Tutor profile already exists');
+
+  return await Tutor.create({
+    user: userId,
+    ...profileData
+  });
 };
 
-export const getTutorById = async (id: string) => {
-  return await Tutor.findById(id);
+const getByUserId = async (userId:string) => {
+  return await Tutor.findOne({ user: userId }).populate('user');
 };
 
-export const getAllTutors = async () => {
-  return await Tutor.find();
-};
+export default { create, getByUserId };
