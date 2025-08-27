@@ -1,17 +1,65 @@
-import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import { Request, Response, NextFunction, RequestHandler } from 'express';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'secret123';
+const JWT_SECRET = process.env.JWT_SECRET;
 
-export const authenticate = (req: Request, res: Response, next: NextFunction) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) return res.status(401).json({ message: 'Token missing' });
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
+
+export interface AuthenticatedRequest extends Request {
+  user: JwtPayload & { id: string; role: string; email: string };
+}
+
+export const authenticate: RequestHandler = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    res.status(401).json({ 
+      message: 'Authorization token missing or malformed',
+      required: 'Bearer <token>'
+    });
+    return;
+  }
+
+  const token = authHeader.split(' ')[1];
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    (req as any).user = decoded;
+    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload & { 
+      id: string; 
+      role: string; 
+      email: string 
+    };
+    
+    // Validate decoded token structure
+    if (!decoded.id || !decoded.role) {
+      res.status(403).json({ message: 'Invalid token structure' });
+      return;
+    }
+    
+    (req as AuthenticatedRequest).user = decoded;
     next();
-  } catch (err) {
-    return res.status(403).json({ message: 'Invalid token' });
+  } catch (err: any) {
+    if (err.name === 'TokenExpiredError') {
+      res.status(401).json({ message: 'Token expired' });
+    } else if (err.name === 'JsonWebTokenError') {
+      res.status(403).json({ message: 'Invalid token' });
+    } else {
+      res.status(403).json({ message: 'Token verification failed' });
+    }
   }
+};
+
+export const authorizeRole = (role: 'student' | 'tutor' | 'admin') => {
+  return (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+    if (!req.user || req.user.role !== role) {
+      res.status(403).json({ 
+        message: 'Forbidden: insufficient permissions',
+        requiredRole: role,
+        userRole: req.user?.role
+      });
+      return;
+    }
+    next();
+  };
 };

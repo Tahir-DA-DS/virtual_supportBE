@@ -1,7 +1,9 @@
 import { Router } from 'express';
-import {register, login} from '../controllers/auth.controller'
+import { register, login } from '../controllers/auth.controller';
+import { validateRequest, authValidation } from '../middlewares/validation.middleware';
 
 const router = Router();
+
 /**
  * @swagger
  * /api/auth/register:
@@ -18,26 +20,39 @@ const router = Router();
  *               - email
  *               - password
  *               - name
+ *               - role
  *             properties:
  *               name:
  *                 type: string
+ *                 minLength: 2
+ *                 maxLength: 50
  *               email:
  *                 type: string
+ *                 format: email
  *               password:
  *                 type: string
+ *                 minLength: 6
+ *               role:
+ *                 type: string
+ *                 enum: [student, tutor]
  *     responses:
  *       201:
  *         description: User created successfully
  *       400:
- *         description: Bad request
+ *         description: Bad request - validation failed
+ *       409:
+ *         description: User already exists
+ *       500:
+ *         description: Server error
  */
 
-router.post('/register', register);
+router.post('/register', validateRequest(authValidation.register), register);
+
 /**
  * @swagger
  * /api/auth/login:
  *   post:
- *     summary: user login
+ *     summary: User login
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -51,14 +66,20 @@ router.post('/register', register);
  *             properties:
  *               email:
  *                 type: string
+ *                 format: email
  *               password:
  *                 type: string
  *     responses:
  *       200:
- *         description: login successfull
+ *         description: Login successful
+ *       400:
+ *         description: Bad request - validation failed
  *       401:
- *         description: Not found
+ *         description: Invalid credentials
+ *       500:
+ *         description: Server error
  */
-router.post('/login', login);
+
+router.post('/login', validateRequest(authValidation.login), login);
 
 export default router;
