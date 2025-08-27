@@ -12,12 +12,14 @@ import tutorRoutes from './api/routes/tutor.routes';
 // Load environment variables first
 dotenv.config();
 
-// Validate required environment variables
-const requiredEnvVars = ['MONGO_URI', 'JWT_SECRET'];
-for (const envVar of requiredEnvVars) {
-  if (!process.env[envVar]) {
-    console.error(`❌ Missing required environment variable: ${envVar}`);
-    process.exit(1);
+// Validate required environment variables only in non-test environments
+if (process.env.NODE_ENV !== 'test') {
+  const requiredEnvVars = ['MONGO_URI', 'JWT_SECRET'];
+  for (const envVar of requiredEnvVars) {
+    if (!process.env[envVar]) {
+      console.error(`❌ Missing required environment variable: ${envVar}`);
+      process.exit(1);
+    }
   }
 }
 
@@ -35,8 +37,10 @@ app.use(cookieParser());
 // Request logging
 app.use(requestLogger);
 
-// Connect to DB
-connectDB();
+// Connect to DB only in non-test environments
+if (process.env.NODE_ENV !== 'test') {
+  connectDB();
+}
 
 // Routes
 app.use('/api/auth', authRoutes);

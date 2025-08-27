@@ -7,11 +7,14 @@ import {
 } from '../services/tutor.service';
 
 export const createOrUpdateProfile = async (
-  req: AuthenticatedRequest,
+  req: Request,
   res: Response
 ): Promise<void> => {
   try {
-    const userId = req.user?.id;
+    // Cast to AuthenticatedRequest since this route requires authentication
+    const authReq = req as AuthenticatedRequest;
+    const userId = authReq.user?.id;
+    
     if (!userId) {
       res.status(401).json({ message: 'Unauthorized: missing userId' });
       return;

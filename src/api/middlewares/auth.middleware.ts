@@ -1,17 +1,20 @@
 import { Request, Response, NextFunction, RequestHandler } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 
+// Get JWT secret from environment
 const JWT_SECRET = process.env.JWT_SECRET;
-
-if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable is required');
-}
 
 export interface AuthenticatedRequest extends Request {
   user: JwtPayload & { id: string; role: string; email: string };
 }
 
 export const authenticate: RequestHandler = (req, res, next) => {
+  // Check JWT secret at runtime
+  if (!JWT_SECRET) {
+    res.status(500).json({ message: 'JWT configuration error' });
+    return;
+  }
+
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
