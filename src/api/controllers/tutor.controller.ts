@@ -1,4 +1,4 @@
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { AuthenticatedRequest } from '../middlewares/auth.middleware';
 import {
   createOrUpdateTutor,
@@ -33,7 +33,7 @@ export const createOrUpdateProfile = async (
 };
 
 export const getProfile = async (
-  req: AuthenticatedRequest,
+  req: Request,
   res: Response
 ): Promise<void> => {
   try {
@@ -55,7 +55,7 @@ export const getProfile = async (
 };
 
 export const getAllProfiles = async (
-  _req: AuthenticatedRequest,
+  _req: Request,
   res: Response
 ): Promise<void> => {
   try {

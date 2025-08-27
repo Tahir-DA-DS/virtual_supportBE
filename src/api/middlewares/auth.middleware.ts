@@ -51,12 +51,13 @@ export const authenticate: RequestHandler = (req, res, next) => {
 };
 
 export const authorizeRole = (role: 'student' | 'tutor' | 'admin') => {
-  return (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
-    if (!req.user || req.user.role !== role) {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    const authReq = req as AuthenticatedRequest;
+    if (!authReq.user || authReq.user.role !== role) {
       res.status(403).json({ 
         message: 'Forbidden: insufficient permissions',
         requiredRole: role,
-        userRole: req.user?.role
+        userRole: authReq.user?.role
       });
       return;
     }

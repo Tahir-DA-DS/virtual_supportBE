@@ -12,7 +12,7 @@ export interface ValidationRule {
 }
 
 export const validateRequest = (rules: ValidationRule[]) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     const errors: string[] = [];
     const body = req.body;
 
@@ -88,10 +88,11 @@ export const validateRequest = (rules: ValidationRule[]) => {
     }
 
     if (errors.length > 0) {
-      return res.status(400).json({
+      res.status(400).json({
         message: 'Validation failed',
         errors
       });
+      return;
     }
 
     next();
@@ -117,6 +118,6 @@ export const tutorValidation = {
     { field: 'bio', type: 'string' as const, maxLength: 500 },
     { field: 'subjects', type: 'array' as const },
     { field: 'availability', type: 'array' as const },
-    { field: 'experience', type: 'number' as const, custom: (value) => value >= 0 || 'Experience must be non-negative' }
+    { field: 'experience', type: 'number' as const, custom: (value: any) => value >= 0 || 'Experience must be non-negative' }
   ]
 };
