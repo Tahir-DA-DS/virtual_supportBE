@@ -15,6 +15,9 @@ export const authenticate: RequestHandler = (req, res, next) => {
     return;
   }
 
+  // At this point, TypeScript knows JWT_SECRET is defined
+  const secret = JWT_SECRET;
+
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -29,7 +32,7 @@ export const authenticate: RequestHandler = (req, res, next) => {
 
   try {
     // Verify token and cast to our expected type
-    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
+    const decoded = jwt.verify(token, secret) as JwtPayload;
     
     // Validate decoded token structure
     if (!decoded || typeof decoded !== 'object' || !decoded.id || !decoded.role) {
