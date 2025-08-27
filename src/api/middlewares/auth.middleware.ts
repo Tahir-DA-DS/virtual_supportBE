@@ -28,19 +28,19 @@ export const authenticate: RequestHandler = (req, res, next) => {
   const token = authHeader.split(' ')[1];
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload & { 
-      id: string; 
-      role: string; 
-      email: string 
-    };
+    // Verify token and cast to our expected type
+    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
     
     // Validate decoded token structure
-    if (!decoded.id || !decoded.role) {
+    if (!decoded || typeof decoded !== 'object' || !decoded.id || !decoded.role) {
       res.status(403).json({ message: 'Invalid token structure' });
       return;
     }
+
+    // Ensure the decoded token has the required properties
+    const userData = decoded as JwtPayload & { id: string; role: string; email: string };
     
-    (req as AuthenticatedRequest).user = decoded;
+    (req as AuthenticatedRequest).user = userData;
     next();
   } catch (err: any) {
     if (err.name === 'TokenExpiredError') {
