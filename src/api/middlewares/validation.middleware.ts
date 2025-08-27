@@ -88,6 +88,25 @@ export const validateRequest = (rules: ValidationRule[]) => {
     }
 
     if (errors.length > 0) {
+      // Check if this is a missing fields case (all required fields missing)
+      const missingFields = errors.filter(err => err.includes('is required'));
+      if (missingFields.length > 0 && missingFields.length === errors.length) {
+        res.status(400).json({
+          message: 'All fields are required'
+        });
+        return;
+      }
+
+      // Check if this is an invalid role case
+      const invalidRole = errors.find(err => err.includes('role') && err.includes('must be one of'));
+      if (invalidRole) {
+        res.status(400).json({
+          message: 'Invalid role. Must be student or tutor'
+        });
+        return;
+      }
+
+      // Default validation failed message
       res.status(400).json({
         message: 'Validation failed',
         errors
@@ -119,5 +138,96 @@ export const tutorValidation = {
     { field: 'subjects', type: 'array' as const },
     { field: 'availability', type: 'array' as const },
     { field: 'experience', type: 'number' as const, custom: (value: any) => value >= 0 || 'Experience must be non-negative' }
+  ]
+};
+
+export const sessionValidation = {
+  create: [
+    { field: 'tutorId', required: true, type: 'string' as const },
+    { field: 'subject', required: true, type: 'string' as const, minLength: 2, maxLength: 100 },
+    { field: 'startTime', required: true, type: 'string' as const, custom: (value: any) => {
+      const date = new Date(value);
+      return !isNaN(date.getTime()) && date > new Date() || 'Start time must be a valid future date';
+    }},
+    { field: 'duration', required: true, type: 'number' as const, custom: (value: any) => 
+      (value >= 15 && value <= 480) || 'Duration must be between 15 and 480 minutes'
+    },
+    { field: 'sessionType', type: 'string' as const, enum: ['one-on-one', 'group', 'exam-prep', 'homework-help'] as const },
+    { field: 'price', required: true, type: 'number' as const, custom: (value: any) => 
+      value >= 0 || 'Price must be non-negative'
+    },
+    { field: 'currency', type: 'string' as const, enum: ['USD', 'EUR', 'GBP', 'CAD', 'AUD'] as const },
+    { field: 'notes', type: 'string' as const, maxLength: 500 }
+  ],
+  update: [
+    { field: 'startTime', type: 'string' as const, custom: (value: any) => {
+      const date = new Date(value);
+      return !isNaN(date.getTime()) && date > new Date() || 'Start time must be a valid future date';
+    }},
+    { field: 'duration', type: 'number' as const, custom: (value: any) => 
+      (value >= 15 && value <= 480) || 'Duration must be between 15 and 480 minutes'
+    },
+    { field: 'status', type: 'string' as const, enum: ['pending', 'confirmed', 'completed', 'cancelled', 'no-show'] as const },
+    { field: 'notes', type: 'string' as const, maxLength: 500 },
+    { field: 'meetingLink', type: 'string' as const, custom: (value: any) => {
+      try {
+        new URL(value);
+        return true;
+      } catch {
+        return 'Meeting link must be a valid URL';
+      }
+    }},
+    { field: 'recordingUrl', type: 'string' as const, custom: (value: any) => {
+      try {
+        new URL(value);
+        return true;
+      } catch {
+        return 'Recording URL must be a valid URL';
+      }
+    }},
+    { field: 'rating', type: 'number' as const, custom: (value: any) => 
+      (value >= 1 && value <= 5) || 'Rating must be between 1 and 5'
+    },
+    { field: 'review', type: 'string' as const, maxLength: 1000 }
+  ]
+};
+
+export const paymentValidation = {
+  createIntent: [
+    { field: 'sessionId', required: true, type: 'string' as const },
+    { field: 'tutorId', required: true, type: 'string' as const },
+    { field: 'amount', required: true, type: 'number' as const, custom: (value: any) => 
+      value > 0 || 'Amount must be greater than 0'
+    },
+    { field: 'currency', type: 'string' as const, enum: ['USD', 'EUR', 'GBP', 'CAD', 'AUD'] as const },
+    { field: 'description', type: 'string' as const, maxLength: 500 }
+  ],
+  confirm: [
+    { field: 'paymentIntentId', required: true, type: 'string' as const }
+  ],
+  refund: [
+    { field: 'amount', type: 'number' as const, custom: (value: any) => 
+      !value || value > 0 || 'Refund amount must be greater than 0'
+    },
+    { field: 'reason', type: 'string' as const, maxLength: 200 }
+  ]
+};
+
+export const chatValidation = {
+  sendMessage: [
+    { field: 'receiverId', required: true, type: 'string' as const },
+    { field: 'content', required: true, type: 'string' as const, maxLength: 1000 },
+    { field: 'messageType', type: 'string' as const, enum: ['text', 'file', 'image', 'system'] as const },
+    { field: 'fileUrl', type: 'string' as const, custom: (value: any) => {
+      if (value && !value.startsWith('http')) {
+        return 'File URL must be a valid HTTP/HTTPS URL';
+      }
+      return true;
+    }},
+    { field: 'fileName', type: 'string' as const, maxLength: 255 },
+    { field: 'fileSize', type: 'number' as const, custom: (value: any) => 
+      !value || value > 0 || 'File size must be positive'
+    },
+    { field: 'sessionId', type: 'string' as const }
   ]
 };

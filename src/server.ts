@@ -1,4 +1,4 @@
-import express, { Express, Request, Response } from 'express';
+import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -8,6 +8,9 @@ import { requestLogger, errorLogger } from './utils/logger';
 import { handleError } from './utils/errorHandler';
 import authRoutes from './api/routes/auth.routes';
 import tutorRoutes from './api/routes/tutor.routes';
+import sessionRoutes from './api/routes/session.routes';
+import paymentRoutes from './api/routes/payment.routes';
+import chatRoutes from './api/routes/chat.routes';
 
 // Load environment variables first
 dotenv.config();
@@ -23,7 +26,7 @@ if (process.env.NODE_ENV !== 'test') {
   }
 }
 
-const app: Express = express();
+const app = express();
 
 // Middleware
 app.use(cors({ 
@@ -45,6 +48,9 @@ if (process.env.NODE_ENV !== 'test') {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/tutors', tutorRoutes);
+app.use('/api/sessions', sessionRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/chat', chatRoutes);
 
 // Health check
 app.get('/', (_req: Request, res: Response) => {
@@ -75,8 +81,8 @@ app.use((err: any, _req: Request, res: Response, _next: any) => {
   });
 });
 
-// 404 handler
-app.use('*', (req: Request, res: Response) => {
+// 404 handler - catch all unmatched routes
+app.use((req: Request, res: Response) => {
   res.status(404).json({ 
     message: `Route ${req.originalUrl} not found` 
   });

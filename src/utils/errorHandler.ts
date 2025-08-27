@@ -51,8 +51,8 @@ export const handleError = (error: any) => {
   }
 
   // Handle Mongoose validation errors
-  if (error.name === 'ValidationError') {
-    const messages = Object.values(error.errors).map((err: any) => err.message);
+  if (error.name === 'ValidationError' && error.errors) {
+    const messages = Object.values(error.errors).map((err: any) => err.message || 'Validation error');
     return {
       statusCode: 400,
       message: 'Validation failed',
@@ -62,8 +62,8 @@ export const handleError = (error: any) => {
   }
 
   // Handle Mongoose duplicate key errors
-  if (error.code === 11000) {
-    const field = Object.keys(error.keyValue)[0];
+  if (error.code === 11000 && error.keyValue) {
+    const field = Object.keys(error.keyValue)[0] || 'field';
     return {
       statusCode: 409,
       message: `${field} already exists`,

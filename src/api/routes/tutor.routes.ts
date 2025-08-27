@@ -17,10 +17,10 @@ router.post('/profile',
   createOrUpdateProfile
 );
 
-// Anyone can view tutor by ID
-router.get('/:id/profile', getProfile);
-
-// Anyone can list all tutors
+// Anyone can list all tutors (must come before parameterized route)
 router.get('/all', getAllProfiles);
+
+// Anyone can view tutor by ID (must come after specific routes)
+router.get('/:id/profile', getProfile);
 
 export default router;

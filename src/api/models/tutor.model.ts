@@ -1,6 +1,6 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose from 'mongoose';
 
-export interface ITutor extends Document {
+export interface ITutor extends mongoose.Document {
   userId: string;
   name: string;
   email: string;

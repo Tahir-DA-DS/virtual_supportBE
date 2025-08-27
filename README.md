@@ -6,6 +6,8 @@ A robust backend API for a virtual tutoring and support platform built with Node
 
 - **User Authentication**: JWT-based authentication with role-based access control
 - **Tutor Management**: Complete CRUD operations for tutor profiles
+- **Session Booking System**: Complete booking, scheduling, and management system
+- **Payment Integration**: Stripe-powered payment processing with refunds and webhooks
 - **Role-Based Authorization**: Support for students, tutors, and admins
 - **API Documentation**: Swagger/OpenAPI documentation
 - **Type Safety**: Full TypeScript implementation
@@ -19,6 +21,7 @@ A robust backend API for a virtual tutoring and support platform built with Node
 - **Language**: TypeScript 5
 - **Database**: MongoDB with Mongoose
 - **Authentication**: JWT with bcryptjs
+- **Payments**: Stripe API integration
 - **Documentation**: Swagger/OpenAPI
 - **Testing**: Jest with Supertest
 - **Code Quality**: ESLint + Prettier
@@ -28,6 +31,7 @@ A robust backend API for a virtual tutoring and support platform built with Node
 - Node.js 18+ 
 - npm 8+
 - MongoDB instance (local or cloud)
+- Stripe account (for payment processing)
 
 ## 🚀 Quick Start
 
@@ -56,6 +60,9 @@ JWT_EXPIRES_IN=1h
 PORT=5000
 NODE_ENV=development
 CORS_ORIGIN=http://localhost:3000
+STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key_here
+STRIPE_WEBHOOK_SECRET=whsec_your_stripe_webhook_secret_here
+STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key_here
 ```
 
 ### 4. Start Development Server
@@ -124,6 +131,23 @@ src/
 - `GET /api/tutors/:id/profile` - Get tutor profile by ID
 - `GET /api/tutors/all` - Get all tutor profiles
 
+### Sessions
+- `POST /api/sessions` - Book a new session (Students only)
+- `GET /api/sessions/:id` - Get session details
+- `PUT /api/sessions/:id` - Update session (Auth required)
+- `POST /api/sessions/:id/cancel` - Cancel session (Auth required)
+- `GET /api/sessions` - List sessions with filters
+- `GET /api/sessions/my/upcoming` - Get upcoming sessions (Auth required)
+- `GET /api/sessions/my/stats` - Get session statistics (Auth required)
+
+### Payments (NEW! 💳)
+- `POST /api/payments/intent` - Create Stripe payment intent (Students only)
+- `POST /api/payments/confirm` - Confirm Stripe payment (Auth required)
+- `POST /api/payments/:id/refund` - Process payment refund (Tutors/Admins only)
+- `GET /api/payments/:id` - Get payment details (Auth required)
+- `GET /api/payments` - List payments with filters (Auth required)
+- `GET /api/payments/my/stats` - Get payment statistics (Auth required)
+
 ## 🔒 Security Features
 
 - JWT token authentication
@@ -132,6 +156,17 @@ src/
 - CORS protection
 - Input validation and sanitization
 - Environment variable protection
+- Secure payment processing with Stripe
+
+## 💳 Payment Features
+
+- **Stripe Integration**: Secure payment processing
+- **Payment Intents**: Modern payment flow with 3D Secure support
+- **Refund Management**: Full and partial refunds
+- **Webhook Handling**: Real-time payment status updates
+- **Multi-currency Support**: USD, EUR, GBP, CAD, AUD
+- **Payment Tracking**: Complete audit trail
+- **Role-based Access**: Students pay, tutors receive, admins manage
 
 ## 🚧 Development
 
@@ -164,6 +199,9 @@ npm run format
 | `PORT` | Server port | No | `5000` |
 | `NODE_ENV` | Environment mode | No | `development` |
 | `CORS_ORIGIN` | CORS allowed origin | No | `true` |
+| `STRIPE_SECRET_KEY` | Stripe secret key for payments | Yes | - |
+| `STRIPE_WEBHOOK_SECRET` | Stripe webhook secret | No | - |
+| `STRIPE_PUBLISHABLE_KEY` | Stripe publishable key | No | - |
 
 ## 🤝 Contributing
 
@@ -186,11 +224,21 @@ For support and questions:
 
 ## 🔮 Roadmap
 
-- [ ] Booking system
-- [ ] Payment integration
+### ✅ Completed (MVP)
+- [x] User authentication system
+- [x] Tutor profile management
+- [x] Session booking system
+- [x] **Payment integration with Stripe** 💳
+
+### 🚧 In Progress
 - [ ] Real-time chat
-- [ ] Video calling
-- [ ] File uploads
+- [ ] Enhanced user profiles
+
+### 📋 Planned Features
+- [ ] Video calling integration
+- [ ] File uploads and sharing
 - [ ] Email notifications
 - [ ] Admin dashboard
 - [ ] Analytics and reporting
+- [ ] Mobile app
+- [ ] Multi-language support

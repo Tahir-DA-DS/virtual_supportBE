@@ -65,8 +65,8 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction): 
       url: req.originalUrl,
       status: res.statusCode,
       duration: `${duration}ms`,
-      userAgent: req.get('User-Agent'),
-      ip: req.ip || req.connection.remoteAddress
+      userAgent: req.get('User-Agent') || 'Unknown',
+      ip: req.ip || req.connection.remoteAddress || 'Unknown'
     };
 
     if (res.statusCode >= 400) {
@@ -89,7 +89,7 @@ export const errorLogger = (error: any, req: Request, _res: Response, next: Next
     body: req.body,
     params: req.params,
     query: req.query,
-    user: (req as any).user?.id
+    user: (req as any).user?.id || 'Unknown'
   });
   
   next(error);

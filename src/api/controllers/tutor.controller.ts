@@ -41,6 +41,13 @@ export const getProfile = async (
 ): Promise<void> => {
   try {
     const tutorId = req.params.id;
+    
+    // Check if tutorId is provided
+    if (!tutorId) {
+      res.status(400).json({ message: 'Tutor ID is required' });
+      return;
+    }
+    
     const tutor = await getTutorById(tutorId);
     
     if (!tutor) {

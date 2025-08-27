@@ -15,6 +15,9 @@ if (!process.env.MONGO_URI) {
   process.env.MONGO_URI = 'mongodb://localhost:27017/virtual_support_test';
 }
 
+// Ensure JWT_SECRET is always set for tests
+process.env.JWT_SECRET = 'test-jwt-secret-for-testing-only';
+
 // Mock console methods in tests to reduce noise
 global.console = {
   ...console,

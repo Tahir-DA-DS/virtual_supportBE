@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction, RequestHandler } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 
 // Get JWT secret from environment
@@ -8,18 +8,16 @@ export interface AuthenticatedRequest extends Request {
   user: JwtPayload & { id: string; role: string; email: string };
 }
 
-export const authenticate: RequestHandler = (req, res, next) => {
-  // Check JWT secret at runtime
-  if (!JWT_SECRET) {
+export const authenticate = (req: Request, res: Response, next: NextFunction): void => {
+  // Early return if JWT secret is not configured
+  if (!JWT_SECRET || typeof JWT_SECRET !== 'string') {
     res.status(500).json({ message: 'JWT configuration error' });
     return;
   }
 
-  // At this point, TypeScript knows JWT_SECRET is defined
-  const secret = JWT_SECRET;
-
   const authHeader = req.headers.authorization;
 
+  // Early return if authorization header is missing or malformed
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     res.status(401).json({ 
       message: 'Authorization token missing or malformed',
@@ -30,9 +28,15 @@ export const authenticate: RequestHandler = (req, res, next) => {
 
   const token = authHeader.split(' ')[1];
 
+  // Early return if token is missing
+  if (!token) {
+    res.status(401).json({ message: 'Token is missing' });
+    return;
+  }
+
   try {
-    // Verify token and cast to our expected type
-    const decoded = jwt.verify(token, secret) as JwtPayload;
+    // At this point, JWT_SECRET is guaranteed to be a string
+    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
     
     // Validate decoded token structure
     if (!decoded || typeof decoded !== 'object' || !decoded.id || !decoded.role) {
