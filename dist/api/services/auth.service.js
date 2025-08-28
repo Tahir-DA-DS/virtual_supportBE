@@ -64,7 +64,7 @@ const loginUser = async (email, password) => {
         role: user.role,
         email: user.email
     }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
-    return token;
+    return { token, user };
 };
 exports.loginUser = loginUser;
 //# sourceMappingURL=auth.service.js.map

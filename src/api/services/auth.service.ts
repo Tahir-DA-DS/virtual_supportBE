@@ -48,7 +48,7 @@ export const registerUser = async (
   return user;
 };
 
-export const loginUser = async (email: string, password: string): Promise<string> => {
+export const loginUser = async (email: string, password: string): Promise<{ token: string; user: IUser }> => {
   // Validate input
   if (!email?.trim() || !password?.trim()) {
     throw new Error('Email and password are required');
@@ -79,5 +79,5 @@ export const loginUser = async (email: string, password: string): Promise<string
     { expiresIn: JWT_EXPIRES_IN as jwt.SignOptions['expiresIn'] }
   );
 
-  return token;
+  return { token, user };
 };

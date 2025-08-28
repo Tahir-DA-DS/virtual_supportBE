@@ -78,5 +78,18 @@ router.post('/register', (0, validation_middleware_1.validateRequest)(validation
  *         description: Server error
  */
 router.post('/login', (0, validation_middleware_1.validateRequest)(validation_middleware_1.authValidation.login), auth_controller_1.login);
+/**
+ * @swagger
+ * /api/auth/logout:
+ *   post:
+ *     summary: User logout
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: Logout successful
+ *       500:
+ *         description: Server error
+ */
+router.post('/logout', auth_controller_1.logout);
 exports.default = router;
 //# sourceMappingURL=auth.routes.js.map

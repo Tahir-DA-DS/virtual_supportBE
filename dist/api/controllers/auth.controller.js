@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.login = exports.register = void 0;
+exports.logout = exports.login = exports.register = void 0;
 const auth_service_1 = require("../services/auth.service");
 const register = async (req, res) => {
     try {
@@ -21,13 +21,20 @@ const register = async (req, res) => {
             return;
         }
         const user = await (0, auth_service_1.registerUser)(name, email, password, role);
+        // Generate token for the new user
+        const { token } = await (0, auth_service_1.loginUser)(email, password);
         res.status(201).json({
             message: 'User registered successfully',
+            token,
             user: {
-                id: user._id,
+                _id: user._id,
                 name: user.name,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                profilePicture: user.profilePicture || '',
+                bio: user.bio || '',
+                createdAt: user.createdAt,
+                updatedAt: user.updatedAt
             }
         });
     }
@@ -49,10 +56,20 @@ const login = async (req, res) => {
             });
             return;
         }
-        const token = await (0, auth_service_1.loginUser)(email, password);
+        const { token, user } = await (0, auth_service_1.loginUser)(email, password);
         res.status(200).json({
             message: 'Login successful',
-            token
+            token,
+            user: {
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                profilePicture: user.profilePicture || '',
+                bio: user.bio || '',
+                createdAt: user.createdAt,
+                updatedAt: user.updatedAt
+            }
         });
     }
     catch (err) {
@@ -62,4 +79,19 @@ const login = async (req, res) => {
     }
 };
 exports.login = login;
+const logout = async (_req, res) => {
+    try {
+        // Logout endpoint for logging purposes
+        // JWT tokens are stateless, so we just log the logout action
+        res.status(200).json({
+            message: 'Logout successful'
+        });
+    }
+    catch (err) {
+        res.status(500).json({
+            message: 'Server error during logout'
+        });
+    }
+};
+exports.logout = logout;
 //# sourceMappingURL=auth.controller.js.map

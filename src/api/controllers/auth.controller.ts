@@ -23,14 +23,22 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     }
 
     const user = await registerUser(name, email, password, role as 'student' | 'tutor');
+    
+    // Generate token for the new user
+    const { token } = await loginUser(email, password);
 
     res.status(201).json({
       message: 'User registered successfully',
+      token,
       user: {
-        id: user._id,
+        _id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        profilePicture: user.profilePicture || '',
+        bio: user.bio || '',
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt
       }
     });
   } catch (err: any) {
@@ -53,11 +61,21 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const token = await loginUser(email, password);
+    const { token, user } = await loginUser(email, password);
 
     res.status(200).json({ 
       message: 'Login successful',
-      token 
+      token,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        profilePicture: user.profilePicture || '',
+        bio: user.bio || '',
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt
+      }
     });
   } catch (err: any) {
     res.status(401).json({ 
@@ -66,7 +84,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export const logout = async (req: Request, res: Response): Promise<void> => {
+export const logout = async (_req: Request, res: Response): Promise<void> => {
   try {
     // Logout endpoint for logging purposes
     // JWT tokens are stateless, so we just log the logout action

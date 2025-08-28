@@ -7,5 +7,8 @@ import { IUser } from '../models/User';
  * @param role 'student' | 'tutor'
  */
 export declare const registerUser: (name: string, email: string, password: string, role: "student" | "tutor") => Promise<IUser>;
-export declare const loginUser: (email: string, password: string) => Promise<string>;
+export declare const loginUser: (email: string, password: string) => Promise<{
+    token: string;
+    user: IUser;
+}>;
 //# sourceMappingURL=auth.service.d.ts.map
