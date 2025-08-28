@@ -65,11 +65,12 @@ export const getProfile = async (
 };
 
 export const getAllProfiles = async (
-  _req: Request,
+  req: Request,
   res: Response
 ): Promise<void> => {
   try {
-    const tutors = await getAllTutors();
+    const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
+    const tutors = await getAllTutors(limit);
     res.status(200).json({ 
       count: tutors.length,
       tutors 

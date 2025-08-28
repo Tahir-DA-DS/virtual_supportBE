@@ -277,7 +277,13 @@ export const getUpcomingSessions = async (userId: string, userRole: string): Pro
 /**
  * Get session statistics
  */
-export const getSessionStats = async (userId: string, userRole: string): Promise<any> => {
+export const getSessionStats = async (userId: string, userRole: string): Promise<{
+  total: number;
+  completed: number;
+  pending: number;
+  cancelled: number;
+  upcoming: number;
+}> => {
   const matchStage: any = {};
   
   if (userRole === 'student') {
@@ -286,24 +292,22 @@ export const getSessionStats = async (userId: string, userRole: string): Promise
     matchStage.tutorId = userId;
   }
 
-  const stats = await Session.aggregate([
-    { $match: matchStage },
-    {
-      $group: {
-        _id: '$status',
-        count: { $sum: 1 },
-        totalDuration: { $sum: '$duration' },
-        totalPrice: { $sum: '$price' }
-      }
-    }
-  ]);
+  // Get all sessions for the user
+  const allSessions = await Session.find(matchStage);
+  
+  // Get upcoming sessions (pending + confirmed, starting from now)
+  const upcomingSessions = allSessions.filter(session => 
+    session.status === 'pending' || session.status === 'confirmed'
+  ).filter(session => session.startTime >= new Date());
 
-  return stats.reduce((acc: any, stat: any) => {
-    acc[stat._id] = {
-      count: stat.count,
-      totalDuration: stat.totalDuration,
-      totalPrice: stat.totalPrice
-    };
-    return acc;
-  }, {});
+  // Count by status
+  const stats = {
+    total: allSessions.length,
+    completed: allSessions.filter(s => s.status === 'completed').length,
+    pending: allSessions.filter(s => s.status === 'pending').length,
+    cancelled: allSessions.filter(s => s.status === 'cancelled').length,
+    upcoming: upcomingSessions.length
+  };
+
+  return stats;
 };

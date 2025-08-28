@@ -32,8 +32,12 @@ const getTutorById = async (id) => {
     return await tutor_model_1.default.findById(id).populate('userId', 'name email role');
 };
 exports.getTutorById = getTutorById;
-const getAllTutors = async () => {
-    return await tutor_model_1.default.find().populate('userId', 'name email role');
+const getAllTutors = async (limit) => {
+    let query = tutor_model_1.default.find().populate('userId', 'name email role');
+    if (limit) {
+        query = query.limit(limit);
+    }
+    return await query;
 };
 exports.getAllTutors = getAllTutors;
 //# sourceMappingURL=tutor.service.js.map

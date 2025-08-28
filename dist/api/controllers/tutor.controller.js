@@ -49,9 +49,10 @@ const getProfile = async (req, res) => {
     }
 };
 exports.getProfile = getProfile;
-const getAllProfiles = async (_req, res) => {
+const getAllProfiles = async (req, res) => {
     try {
-        const tutors = await (0, tutor_service_1.getAllTutors)();
+        const limit = req.query.limit ? parseInt(req.query.limit) : undefined;
+        const tutors = await (0, tutor_service_1.getAllTutors)(limit);
         res.status(200).json({
             count: tutors.length,
             tutors

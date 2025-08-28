@@ -43,6 +43,12 @@ export const getTutorById = async (id: string): Promise<ITutor | null> => {
   return await Tutor.findById(id).populate('userId', 'name email role');
 };
 
-export const getAllTutors = async (): Promise<ITutor[]> => {
-  return await Tutor.find().populate('userId', 'name email role');
+export const getAllTutors = async (limit?: number): Promise<ITutor[]> => {
+  let query = Tutor.find().populate('userId', 'name email role');
+  
+  if (limit) {
+    query = query.limit(limit);
+  }
+  
+  return await query;
 };

@@ -10,5 +10,5 @@ export interface TutorData {
 }
 export declare const createOrUpdateTutor: (userId: string, data: TutorData) => Promise<ITutor>;
 export declare const getTutorById: (id: string) => Promise<ITutor | null>;
-export declare const getAllTutors: () => Promise<ITutor[]>;
+export declare const getAllTutors: (limit?: number) => Promise<ITutor[]>;
 //# sourceMappingURL=tutor.service.d.ts.map

@@ -235,25 +235,19 @@ const getSessionStats = async (userId, userRole) => {
     else if (userRole === 'tutor') {
         matchStage.tutorId = userId;
     }
-    const stats = await session_model_1.default.aggregate([
-        { $match: matchStage },
-        {
-            $group: {
-                _id: '$status',
-                count: { $sum: 1 },
-                totalDuration: { $sum: '$duration' },
-                totalPrice: { $sum: '$price' }
-            }
-        }
-    ]);
-    return stats.reduce((acc, stat) => {
-        acc[stat._id] = {
-            count: stat.count,
-            totalDuration: stat.totalDuration,
-            totalPrice: stat.totalPrice
-        };
-        return acc;
-    }, {});
+    // Get all sessions for the user
+    const allSessions = await session_model_1.default.find(matchStage);
+    // Get upcoming sessions (pending + confirmed, starting from now)
+    const upcomingSessions = allSessions.filter(session => session.status === 'pending' || session.status === 'confirmed').filter(session => session.startTime >= new Date());
+    // Count by status
+    const stats = {
+        total: allSessions.length,
+        completed: allSessions.filter(s => s.status === 'completed').length,
+        pending: allSessions.filter(s => s.status === 'pending').length,
+        cancelled: allSessions.filter(s => s.status === 'cancelled').length,
+        upcoming: upcomingSessions.length
+    };
+    return stats;
 };
 exports.getSessionStats = getSessionStats;
 //# sourceMappingURL=session.service.js.map

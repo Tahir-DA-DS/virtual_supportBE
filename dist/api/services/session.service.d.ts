@@ -55,5 +55,11 @@ export declare const getUpcomingSessions: (userId: string, userRole: string) => 
 /**
  * Get session statistics
  */
-export declare const getSessionStats: (userId: string, userRole: string) => Promise<any>;
+export declare const getSessionStats: (userId: string, userRole: string) => Promise<{
+    total: number;
+    completed: number;
+    pending: number;
+    cancelled: number;
+    upcoming: number;
+}>;
 //# sourceMappingURL=session.service.d.ts.map
