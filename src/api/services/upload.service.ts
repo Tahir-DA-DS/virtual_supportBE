@@ -5,17 +5,10 @@ import { Request } from 'express';
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
-  destination: (req: Request, file: Express.Multer.File, cb) => {
-    const uploadDir = 'uploads/';
-    
-    // Create uploads directory if it doesn't exist
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    
-    cb(null, uploadDir);
+  destination: (_req: Request, _file: Express.Multer.File, cb) => {
+    cb(null, 'uploads/');
   },
-  filename: (req: Request, file: Express.Multer.File, cb) => {
+  filename: (_req: Request, file: Express.Multer.File, cb) => {
     // Generate unique filename with timestamp
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     const ext = path.extname(file.originalname);
@@ -24,7 +17,7 @@ const storage = multer.diskStorage({
 });
 
 // File filter for images
-const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+const fileFilter = (_req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
   // Allow only image files
   if (file.mimetype.startsWith('image/')) {
     cb(null, true);
@@ -59,8 +52,8 @@ export const deleteFile = (filename: string): void => {
 };
 
 // Helper function to validate image dimensions
-export const validateImageDimensions = (filePath: string): Promise<{ width: number; height: number }> => {
-  return new Promise((resolve, reject) => {
+export const validateImageDimensions = (_filePath: string): Promise<{ width: number; height: number }> => {
+  return new Promise((resolve, _reject) => {
     // For now, return default dimensions
     // In production, you'd use a library like sharp or jimp to get actual dimensions
     resolve({ width: 400, height: 400 });

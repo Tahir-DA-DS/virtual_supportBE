@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authenticate, authorizeRole } from '../middlewares/auth.middleware';
+import { authenticate, authorizeRole, authorizeRoles } from '../middlewares/auth.middleware';
 import { validateRequest, paymentValidation } from '../middlewares/validation.middleware';
 import {
   createPaymentIntent,
@@ -154,7 +154,7 @@ router.post('/confirm',
  */
 router.post('/:id/refund', 
   authenticate,
-  authorizeRole('tutor', 'admin'),
+  authorizeRoles(['tutor', 'admin']),
   validateRequest(paymentValidation.refund),
   refundPayment
 );

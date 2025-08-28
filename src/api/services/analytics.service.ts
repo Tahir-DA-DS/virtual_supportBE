@@ -1,7 +1,7 @@
+import { Chat } from '../models/chat.model';
 import User from '../models/User';
 import Session from '../models/session.model';
 import Payment from '../models/payment.model';
-import { Message, Chat } from '../models/chat.model';
 
 export interface DashboardStats {
   totalUsers: number;

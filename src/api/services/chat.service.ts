@@ -1,6 +1,6 @@
 import { Message, Chat, IMessage, IChat } from '../models/chat.model';
-import { Session } from '../models/session.model';
 import User from '../models/User';
+import mongoose from 'mongoose';
 
 export interface CreateMessageData {
   senderId: string;
@@ -33,13 +33,13 @@ export const getOrCreateChat = async (participant1: string, participant2: string
     // Create new chat
     chat = new Chat({
       participants: [participant1, participant2],
-      sessionId,
+      sessionId: sessionId ? new mongoose.Types.ObjectId(sessionId) : undefined,
       isActive: true
     });
     await chat.save();
   } else if (sessionId && !chat.sessionId) {
     // Update existing chat with session ID
-    chat.sessionId = sessionId;
+    chat.sessionId = new mongoose.Types.ObjectId(sessionId);
     await chat.save();
   }
 
@@ -81,7 +81,7 @@ export const sendMessage = async (data: CreateMessageData): Promise<IMessage> =>
   await message.save();
 
   // Update chat with last message
-  chat.lastMessage = message._id;
+  chat.lastMessage = message._id as mongoose.Types.ObjectId;
   chat.lastMessageAt = new Date();
   await chat.save();
 
@@ -92,7 +92,18 @@ export const sendMessage = async (data: CreateMessageData): Promise<IMessage> =>
  * Get chat messages
  */
 export const getChatMessages = async (chatId: string, limit: number = 50, before?: Date): Promise<IMessage[]> => {
-  const query: any = {};
+  // First get the chat to find participants
+  const chat = await Chat.findById(chatId);
+  if (!chat) {
+    throw new Error('Chat not found');
+  }
+
+  const query: any = {
+    $or: [
+      { senderId: { $in: chat.participants } },
+      { receiverId: { $in: chat.participants } }
+    ]
+  };
   
   if (before) {
     query.createdAt = { $lt: before };
@@ -133,10 +144,20 @@ export const getUserChats = async (filters: ChatFilters): Promise<IChat[]> => {
  * Mark messages as read
  */
 export const markMessagesAsRead = async (chatId: string, userId: string): Promise<void> => {
+  // First get the chat to find participants
+  const chat = await Chat.findById(chatId);
+  if (!chat) {
+    throw new Error('Chat not found');
+  }
+
   await Message.updateMany(
     {
       receiverId: userId,
-      isRead: false
+      isRead: false,
+      $or: [
+        { senderId: { $in: chat.participants } },
+        { receiverId: { $in: chat.participants } }
+      ]
     },
     {
       isRead: true,
@@ -174,7 +195,7 @@ export const archiveChat = async (chatId: string, userId: string): Promise<void>
     throw new Error('Chat not found');
   }
 
-  if (!chat.participants.includes(userId)) {
+  if (!chat.participants.includes(userId as any)) {
     throw new Error('Access denied to this chat');
   }
 

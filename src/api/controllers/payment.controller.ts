@@ -136,8 +136,14 @@ export const refundPayment = async (
       return;
     }
 
+    const { id } = req.params;
+    if (!id) {
+      res.status(400).json({ message: 'Payment ID is required' });
+      return;
+    }
+
     const refundData: RefundData = {
-      paymentId: req.params.id,
+      paymentId: id,
       amount: req.body.amount,
       reason: req.body.reason
     };

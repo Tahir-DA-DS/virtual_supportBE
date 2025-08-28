@@ -74,3 +74,18 @@ export const authorizeRole = (role: 'student' | 'tutor' | 'admin') => {
     next();
   };
 };
+
+export const authorizeRoles = (roles: ('student' | 'tutor' | 'admin')[]) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    const authReq = req as AuthenticatedRequest;
+    if (!authReq.user || !roles.includes(authReq.user.role as any)) {
+      res.status(403).json({ 
+        message: 'Forbidden: insufficient permissions',
+        requiredRoles: roles,
+        userRole: authReq.user?.role
+      });
+      return;
+    }
+    next();
+  };
+};

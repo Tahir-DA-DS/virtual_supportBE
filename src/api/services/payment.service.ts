@@ -9,7 +9,7 @@ let stripe: Stripe | null = null;
 try {
   if (process.env.STRIPE_SECRET_KEY) {
     stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: '2024-12-18.acacia',
+      apiVersion: '2025-07-30.basil',
     });
   }
 } catch (error) {
@@ -113,7 +113,7 @@ export const createStripePaymentIntent = async (data: PaymentIntentData): Promis
     amount: Math.round(data.amount * 100), // Convert to cents
     currency: data.currency.toLowerCase(),
     metadata: {
-      paymentId: payment._id.toString(),
+      paymentId: payment._id?.toString() || '',
       sessionId: data.sessionId,
       studentId: data.studentId,
       tutorId: data.tutorId
@@ -250,11 +250,7 @@ export const processRefund = async (data: RefundData): Promise<IPayment> => {
   }
 
   if (payment.status !== 'completed') {
-    throw new Error('Payment must be completed to process refund');
-  }
-
-  if (payment.refundAmount) {
-    throw new Error('Payment has already been refunded');
+    throw new Error('Only completed payments can be refunded');
   }
 
   const refundAmount = data.amount || payment.amount;
@@ -266,12 +262,12 @@ export const processRefund = async (data: RefundData): Promise<IPayment> => {
   // Process Stripe refund if applicable
   if (payment.stripeChargeId && stripe) {
     try {
-      const refund = await stripe.refunds.create({
+      await stripe.refunds.create({
         charge: payment.stripeChargeId,
         amount: Math.round(refundAmount * 100), // Convert to cents
         reason: data.reason ? 'requested_by_customer' : 'duplicate',
         metadata: {
-          paymentId: payment._id.toString(),
+          paymentId: payment._id?.toString() || '',
           reason: data.reason || 'No reason provided'
         }
       });

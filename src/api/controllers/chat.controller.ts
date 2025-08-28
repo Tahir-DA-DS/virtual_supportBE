@@ -5,7 +5,7 @@ import {
   getChatMessages,
   getUserChats,
   markMessagesAsRead,
-  getUnreadCount,
+  getUnreadCount as getUnreadCountService,
   getChatBySession,
   archiveChat,
   getChatStats,
@@ -70,6 +70,11 @@ export const getMessages = async (
     }
 
     const { chatId } = req.params;
+    if (!chatId) {
+      res.status(400).json({ message: 'Chat ID is required' });
+      return;
+    }
+    
     const limit = parseInt(req.query.limit as string) || 50;
     const before = req.query.before ? new Date(req.query.before as string) : undefined;
 
@@ -138,6 +143,10 @@ export const markAsRead = async (
     }
 
     const { chatId } = req.params;
+    if (!chatId) {
+      res.status(400).json({ message: 'Chat ID is required' });
+      return;
+    }
     
     await markMessagesAsRead(chatId, userId);
     
@@ -167,7 +176,7 @@ export const getUnreadCount = async (
       return;
     }
 
-    const count = await getUnreadCount(userId);
+    const count = await getUnreadCountService(userId);
     
     res.status(200).json({
       unreadCount: count
@@ -196,6 +205,10 @@ export const getSessionChat = async (
     }
 
     const { sessionId } = req.params;
+    if (!sessionId) {
+      res.status(400).json({ message: 'Session ID is required' });
+      return;
+    }
     
     const chat = await getChatBySession(sessionId);
     
@@ -235,6 +248,10 @@ export const archiveUserChat = async (
     }
 
     const { chatId } = req.params;
+    if (!chatId) {
+      res.status(400).json({ message: 'Chat ID is required' });
+      return;
+    }
     
     await archiveChat(chatId, userId);
     
