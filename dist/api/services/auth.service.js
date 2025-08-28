@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.loginUser = exports.registerUser = void 0;
+exports.getUserById = exports.loginUser = exports.registerUser = void 0;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const User_1 = __importDefault(require("../models/User"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
@@ -67,4 +67,19 @@ const loginUser = async (email, password) => {
     return { token, user };
 };
 exports.loginUser = loginUser;
+/**
+ * Get user by ID
+ * @param userId user's ID
+ */
+const getUserById = async (userId) => {
+    try {
+        const user = await User_1.default.findById(userId).select('-password');
+        return user;
+    }
+    catch (error) {
+        console.error('Error fetching user by ID:', error);
+        return null;
+    }
+};
+exports.getUserById = getUserById;
 //# sourceMappingURL=auth.service.js.map

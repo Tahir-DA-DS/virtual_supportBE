@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const auth_controller_1 = require("../controllers/auth.controller");
 const validation_middleware_1 = require("../middlewares/validation.middleware");
+const auth_middleware_1 = require("../middlewares/auth.middleware");
 const router = (0, express_1.Router)();
 /**
  * @swagger
@@ -91,5 +92,24 @@ router.post('/login', (0, validation_middleware_1.validateRequest)(validation_mi
  *         description: Server error
  */
 router.post('/logout', auth_controller_1.logout);
+/**
+ * @swagger
+ * /api/auth/me:
+ *   get:
+ *     summary: Get current user profile
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Current user profile retrieved successfully
+ *       401:
+ *         description: Unauthorized - Invalid or missing token
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+router.get('/me', auth_middleware_1.authenticate, auth_controller_1.getCurrentUser);
 exports.default = router;
 //# sourceMappingURL=auth.routes.js.map

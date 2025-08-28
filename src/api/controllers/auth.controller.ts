@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
-import { registerUser, loginUser } from '../services/auth.service';
+import { registerUser, loginUser, getUserById } from '../services/auth.service';
+import { AuthenticatedRequest } from '../middlewares/auth.middleware';
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -94,6 +95,44 @@ export const logout = async (_req: Request, res: Response): Promise<void> => {
   } catch (err: any) {
     res.status(500).json({ 
       message: 'Server error during logout' 
+    });
+  }
+};
+
+export const getCurrentUser = async (req: Request, res: Response): Promise<void> => {
+  try {
+    // Extract user ID from the authenticated request
+    const userId = (req as AuthenticatedRequest).user?.id;
+    
+    if (!userId) {
+      res.status(401).json({ 
+        message: 'Unauthorized - No user ID found' 
+      });
+      return;
+    }
+
+    const user = await getUserById(userId);
+    
+    if (!user) {
+      res.status(404).json({ 
+        message: 'User not found' 
+      });
+      return;
+    }
+
+    res.status(200).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      profilePicture: user.profilePicture || '',
+      bio: user.bio || '',
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
+    });
+  } catch (err: any) {
+    res.status(500).json({ 
+      message: 'Server error while fetching user profile' 
     });
   }
 };

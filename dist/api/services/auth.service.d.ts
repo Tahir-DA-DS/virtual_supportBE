@@ -11,4 +11,9 @@ export declare const loginUser: (email: string, password: string) => Promise<{
     token: string;
     user: IUser;
 }>;
+/**
+ * Get user by ID
+ * @param userId user's ID
+ */
+export declare const getUserById: (userId: string) => Promise<IUser | null>;
 //# sourceMappingURL=auth.service.d.ts.map

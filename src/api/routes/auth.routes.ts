@@ -1,6 +1,7 @@
 import { Router } from 'express';
-import { register, login, logout } from '../controllers/auth.controller';
+import { register, login, logout, getCurrentUser } from '../controllers/auth.controller';
 import { validateRequest, authValidation } from '../middlewares/validation.middleware';
+import { authenticate } from '../middlewares/auth.middleware';
 
 const router = Router();
 
@@ -95,5 +96,25 @@ router.post('/login', validateRequest(authValidation.login), login);
  *         description: Server error
  */
 router.post('/logout', logout);
+
+/**
+ * @swagger
+ * /api/auth/me:
+ *   get:
+ *     summary: Get current user profile
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Current user profile retrieved successfully
+ *       401:
+ *         description: Unauthorized - Invalid or missing token
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+router.get('/me', authenticate, getCurrentUser);
 
 export default router;

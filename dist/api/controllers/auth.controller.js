@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.logout = exports.login = exports.register = void 0;
+exports.getCurrentUser = exports.logout = exports.login = exports.register = void 0;
 const auth_service_1 = require("../services/auth.service");
 const register = async (req, res) => {
     try {
@@ -94,4 +94,39 @@ const logout = async (_req, res) => {
     }
 };
 exports.logout = logout;
+const getCurrentUser = async (req, res) => {
+    try {
+        // Extract user ID from the authenticated request
+        const userId = req.user?.id;
+        if (!userId) {
+            res.status(401).json({
+                message: 'Unauthorized - No user ID found'
+            });
+            return;
+        }
+        const user = await (0, auth_service_1.getUserById)(userId);
+        if (!user) {
+            res.status(404).json({
+                message: 'User not found'
+            });
+            return;
+        }
+        res.status(200).json({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            profilePicture: user.profilePicture || '',
+            bio: user.bio || '',
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt
+        });
+    }
+    catch (err) {
+        res.status(500).json({
+            message: 'Server error while fetching user profile'
+        });
+    }
+};
+exports.getCurrentUser = getCurrentUser;
 //# sourceMappingURL=auth.controller.js.map

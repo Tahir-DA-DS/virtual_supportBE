@@ -81,3 +81,17 @@ export const loginUser = async (email: string, password: string): Promise<{ toke
 
   return { token, user };
 };
+
+/**
+ * Get user by ID
+ * @param userId user's ID
+ */
+export const getUserById = async (userId: string): Promise<IUser | null> => {
+  try {
+    const user = await User.findById(userId).select('-password');
+    return user;
+  } catch (error) {
+    console.error('Error fetching user by ID:', error);
+    return null;
+  }
+};
