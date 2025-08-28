@@ -34,10 +34,30 @@ if (process.env.NODE_ENV !== 'test') {
 const app = (0, express_1.default)();
 exports.app = app;
 // Middleware
-app.use((0, cors_1.default)({
-    origin: process.env.CORS_ORIGIN || true,
-    credentials: true
-}));
+const corsOptions = {
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin)
+            return callback(null, true);
+        const allowedOrigins = [
+            'http://localhost:3000',
+            'http://localhost:3001',
+            'http://localhost:5173',
+            'https://your-frontend-domain.onrender.com' // Update this with your actual frontend domain
+        ];
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        }
+        else {
+            console.log(`CORS blocked origin: ${origin}`);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+};
+app.use((0, cors_1.default)(corsOptions));
 app.use(express_1.default.json({ limit: '10mb' }));
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use((0, cookie_parser_1.default)());
