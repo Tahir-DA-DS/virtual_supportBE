@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { register, login } from '../controllers/auth.controller';
+import { register, login, logout } from '../controllers/auth.controller';
 import { validateRequest, authValidation } from '../middlewares/validation.middleware';
 
 const router = Router();
@@ -81,5 +81,19 @@ router.post('/register', validateRequest(authValidation.register), register);
  */
 
 router.post('/login', validateRequest(authValidation.login), login);
+
+/**
+ * @swagger
+ * /api/auth/logout:
+ *   post:
+ *     summary: User logout
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: Logout successful
+ *       500:
+ *         description: Server error
+ */
+router.post('/logout', logout);
 
 export default router;

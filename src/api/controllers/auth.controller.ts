@@ -65,3 +65,17 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     });
   }
 };
+
+export const logout = async (req: Request, res: Response): Promise<void> => {
+  try {
+    // Logout endpoint for logging purposes
+    // JWT tokens are stateless, so we just log the logout action
+    res.status(200).json({ 
+      message: 'Logout successful' 
+    });
+  } catch (err: any) {
+    res.status(500).json({ 
+      message: 'Server error during logout' 
+    });
+  }
+};
